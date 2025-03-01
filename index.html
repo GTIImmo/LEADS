@@ -189,7 +189,7 @@
 
                 let date = selectedSlot.getAttribute("data-date");
 
-                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${date}`;
+                let url = `https://script.google.com/macros/s/18UmjAgCtJhH_ElLbxZW9ScdWXs9-m7EdYTvyIkzVswQVK4B-W3Kxt7VC/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${date}`;
 
                 fetch(url, { method: "GET" })
                 .then(response => response.text())
