@@ -32,7 +32,6 @@
         .logo {
             width: 150px;
         }
-        .info { text-align: left; margin-bottom: 20px; font-size: 14px; }
         .button {
             background-color: #C8106E;
             color: white;
@@ -71,8 +70,6 @@
         </div>
         
         <h1>Prendre un Rendez-vous</h1>
-        <div class="info" id="leadInfo">Chargement...</div>
-
         <h3>Choisissez un mois :</h3>
         <select id="monthSelection">
             <option value="">Sélectionner un mois</option>
@@ -92,8 +89,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            console.log("✅ Chargement du script");
-
             const monthSelection = document.getElementById("monthSelection");
             for (let i = 0; i < 12; i++) {
                 let date = new Date();
@@ -158,21 +153,24 @@
                 }
 
                 let date = selectedSlot.getAttribute("data-date");
-                let url = `https://script.google.com/macros/s/AKfycbx_uWLZwi33ir9W3565spvPGiDwgwDY5TVu2l1OPdwcqb1QmdlNq6nAGoLuIrezP1ZB8g/exec?rdvDate=${date}`;
+                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?rdvDate=${date}`;
 
-fetch(url, { 
-    method: "GET",
-    mode: "cors", 
-    headers: { "Content-Type": "application/json" }
-})
-.then(response => response.json())
-.then(data => {
-    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système, contactez votre conseiller.";
-    document.getElementById("confirmation").style.display = "block";
-})
-.catch(error => {
-    document.getElementById("confirmation").innerText = "❌ Erreur système, contactez votre conseiller.";
-    document.getElementById("confirmation").style.display = "block";
-});
+                fetch(url, { 
+                    method: "GET",
+                    mode: "cors", 
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système.";
+                    document.getElementById("confirmation").style.display = "block";
+                })
+                .catch(error => {
+                    document.getElementById("confirmation").innerText = "❌ Erreur système.";
+                    document.getElementById("confirmation").style.display = "block";
+                });
+            });
+        });
+    </script>
 </body>
 </html>
