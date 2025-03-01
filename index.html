@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prendre Rendez-vous | GTI Immobilier</title>
 
+    <!-- Styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,6 +33,7 @@
         .logo {
             width: 150px;
         }
+        .info { text-align: left; margin-bottom: 20px; font-size: 14px; }
         .button {
             background-color: #C8106E;
             color: white;
@@ -60,6 +62,7 @@
         }
         .slot:hover, .selected { background: #C8106E !important; color: white !important; }
         #confirmation { display: none; margin-top: 20px; color: green; font-weight: bold; }
+        #daySelection { margin: 20px 0; }
     </style>
 </head>
 <body>
@@ -70,10 +73,7 @@
         </div>
         
         <h1>Prendre un Rendez-vous</h1>
-        <h3>Choisissez un mois :</h3>
-        <select id="monthSelection">
-            <option value="">Sélectionner un mois</option>
-        </select>
+        <div class="info" id="leadInfo">Chargement...</div>
 
         <h3>Choisissez un jour :</h3>
         <select id="daySelection">
@@ -89,60 +89,70 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const monthSelection = document.getElementById("monthSelection");
-            for (let i = 0; i < 12; i++) {
-                let date = new Date();
-                date.setMonth(new Date().getMonth() + i);
+            console.log("✅ Chargement du script");
+
+            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
+            const params = new URLSearchParams(window.location.search);
+            const lead = {
+                nom: params.get("nom") || "Client",
+                prenom: params.get("prenom") || "",
+                email: params.get("email") || "",
+                telephone: params.get("telephone") || "",
+                agence: params.get("agence") || "",
+                negociateur: params.get("negociateur") || "",
+                property: params.get("property") || "",
+                surface: params.get("surface") || "",
+                rooms: params.get("rooms") || "",
+                prix: params.get("prix") || "",
+                reception: params.get("reception") || ""
+            };
+
+            // 📌 Afficher les infos du lead sur la page
+            document.getElementById("leadInfo").innerHTML = `
+                <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
+                <p>Vous avez demandé une estimation pour un <b>${lead.property}</b> de <b>${lead.surface} m²</b> avec <b>${lead.rooms} pièces</b>.</p>
+                <p>Prix estimé : <b>${lead.prix} €</b> (donnée reçue le ${lead.reception}).</p>
+                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
+            `;
+
+            // 📌 Remplir la liste des jours disponibles
+            const daySelection = document.getElementById("daySelection");
+            for (let i = 1; i <= 5; i++) {
+                let futureDate = new Date();
+                futureDate.setDate(new Date().getDate() + i);
                 let option = document.createElement("option");
-                option.value = date.getMonth();
-                option.textContent = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-                monthSelection.appendChild(option);
+                option.value = futureDate.toISOString().split('T')[0];
+                option.textContent = futureDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                daySelection.appendChild(option);
             }
 
-            monthSelection.addEventListener("change", function () {
-                if (this.value !== "") {
-                    generateDays(parseInt(this.value));
-                }
+            daySelection.addEventListener("change", function () {
+                if (this.value) { generateTimeSlots(this.value); }
             });
 
-            function generateDays(selectedMonth) {
-                const daySelection = document.getElementById("daySelection");
-                daySelection.innerHTML = "<option value=''>Sélectionner un jour</option>";
-                let daysInMonth = new Date(new Date().getFullYear(), selectedMonth + 1, 0).getDate();
-
-                for (let i = 1; i <= daysInMonth; i++) {
-                    let option = document.createElement("option");
-                    option.value = i;
-                    option.textContent = i;
-                    daySelection.appendChild(option);
-                }
-            }
-
-            document.getElementById("daySelection").addEventListener("change", function () {
-                if (this.value !== "") {
-                    generateTimeSlots(monthSelection.value, this.value);
-                }
-            });
-
-            function generateTimeSlots(month, day) {
+            function generateTimeSlots(selectedDay) {
                 const calendarEl = document.getElementById("calendar");
                 calendarEl.innerHTML = ""; 
+                let slots = [];
+
                 for (let i = 9; i <= 17; i++) {  
-                    let date = new Date();
-                    date.setMonth(month);
-                    date.setDate(day);
+                    let date = new Date(selectedDay);
                     date.setHours(i, 0, 0, 0);
+                    slots.push({ label: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), date: date });
+                }
+
+                slots.forEach(slot => {
                     let div = document.createElement("div");
                     div.classList.add("slot");
-                    div.innerText = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    div.innerText = slot.label;
                     div.onclick = function () {
                         document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
                         div.classList.add("selected");
                         document.getElementById("confirmButton").style.display = "block";
-                        div.setAttribute("data-date", date.toISOString());
+                        div.setAttribute("data-date", slot.date.toISOString());
                     };
                     calendarEl.appendChild(div);
-                }
+                });
             }
 
             document.getElementById("confirmButton").addEventListener("click", function () {
@@ -153,24 +163,31 @@
                 }
 
                 let date = selectedSlot.getAttribute("data-date");
-                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?rdvDate=${date}`;
 
-                fetch(url, { 
-                    method: "GET",
-                    mode: "cors", 
-                    headers: { "Content-Type": "application/json" }
-                })
-                .then(response => response.json())
+                // 🔹 Envoi des données à Google Sheets via Google Apps Script (GET)
+                let params = new URLSearchParams({
+                    nom: lead.nom,
+                    prenom: lead.prenom,
+                    email: lead.email,
+                    telephone: lead.telephone,
+                    rdvDate: date
+                }).toString();
+
+                let url = `https://script.google.com/macros/s/AKfycbyu0tqXmJmP5byDYEDLsUrvcN90f8cMoM25_NOAn60zfj9WZfF42Y4Xl6w07ZJ4u0Zh5w/exec/exec?${params}`;
+
+                console.log("📤 Envoi des données :", url);
+
+                fetch(url, { method: "GET" })
+                .then(response => response.text())
                 .then(data => {
-                    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système.";
+                    console.log("✅ Réponse API :", data);
+                    document.getElementById("confirmation").innerHTML = `✅ Merci ${lead.prenom} ${lead.nom}, votre rendez-vous est confirmé.`;
                     document.getElementById("confirmation").style.display = "block";
                 })
-                .catch(error => {
-                    document.getElementById("confirmation").innerText = "❌ Erreur système.";
-                    document.getElementById("confirmation").style.display = "block";
-                });
+                .catch(error => console.error("❌ Erreur API:", error));
             });
         });
     </script>
+
 </body>
 </html>
