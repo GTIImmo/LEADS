@@ -158,8 +158,7 @@
                 }
 
                 let date = selectedSlot.getAttribute("data-date");
-                let url = `https://script.google.com/macros/s/AKfycbwgpWjP_pZFa1TkizdS5cyikWXE9CRJNn5YrfX5i2eLRx4HGigsXLFZ0clpS0K9LRV_Og/exec?rdvDate=${date}`;
-
+                let url = `https://script.google.com/macros/s/AKfycbwgpWjP_pZFa1TkizdS5cyikWXE9CRJNn5YrfX5i2eLRx4HGigsXLFZ0clpS0K9LRV_Og/exec/exec?rdvDate=${date}`;
                 fetch(url, { 
                     method: "GET",
                     mode: "cors", 
