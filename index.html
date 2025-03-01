@@ -158,24 +158,23 @@
                 }
 
                 let date = selectedSlot.getAttribute("data-date");
-                let url = `https://script.google.com/macros/s/AKfycbwgpWjP_pZFa1TkizdS5cyikWXE9CRJNn5YrfX5i2eLRx4HGigsXLFZ0clpS0K9LRV_Og/exec?rdvDate=${date}`;
+                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?rdvDate=${date}`;
 
-                fetch(url, { 
-                    method: "GET",
-                    mode: "cors", 
-                    headers: { "Content-Type": "application/json" }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système, contactez votre conseiller.";
-                    document.getElementById("confirmation").style.display = "block";
-                })
-                .catch(error => {
-                    document.getElementById("confirmation").innerText = "❌ Erreur système, contactez votre conseiller.";
-                    document.getElementById("confirmation").style.display = "block";
-                });
-            });
-        });
+fetch(url, { 
+    method: "GET",
+    mode: "cors", 
+    headers: { "Content-Type": "application/json" }
+})
+.then(response => response.json())
+.then(data => {
+    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système, contactez votre conseiller.";
+    document.getElementById("confirmation").style.display = "block";
+})
+.catch(error => {
+    document.getElementById("confirmation").innerText = "❌ Erreur système, contactez votre conseiller.";
+    document.getElementById("confirmation").style.display = "block";
+});
+
     </script>
 </body>
 </html>
