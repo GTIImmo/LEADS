@@ -1,193 +1,137 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prendre Rendez-vous | GTI Immobilier</title>
+<!-- Ajout du menu déroulant pour choisir le mois -->
+<h3>Choisissez un mois :</h3>
+<select id="monthSelection">
+    <option value="">Sélectionner un mois</option>
+</select>
 
-    <!-- Styles -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #F8F8F8;
-            color: #333;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            background: white;
-            margin: auto;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        h1 { color: #C8106E; }
-        .logo-container {
-            background: #D9D9D9;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            border-radius: 10px;
-        }
-        .logo {
-            width: 150px;
-        }
-        .info { text-align: left; margin-bottom: 20px; font-size: 14px; }
-        .button {
-            background-color: #C8106E;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-top: 10px;
-            display: none;
-        }
-        .button:hover { background-color: #A00A5C; }
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .slot {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-            text-align: center;
-            background: #F2F2F2;
-        }
-        .slot:hover, .selected { background: #C8106E !important; color: white !important; }
-        #confirmation { display: none; margin-top: 20px; color: green; font-weight: bold; }
-        #daySelection { margin: 20px 0; }
-    </style>
-</head>
-<body>
+<!-- Ajout du menu déroulant pour choisir le jour -->
+<h3>Choisissez un jour :</h3>
+<select id="daySelection">
+    <option value="">Sélectionner un jour</option>
+</select>
 
-    <div class="container">
-        <div class="logo-container">
-            <img src="https://www.gti-immobilier.fr/application/files/5617/3617/2343/GTI-Logos-Grisblanc.png" alt="GTI Immobilier" class="logo">
-        </div>
-        
-        <h1>Prendre un Rendez-vous</h1>
-        <div class="info" id="leadInfo">Chargement...</div>
+<h3>Choisissez un créneau disponible :</h3>
+<div class="calendar" id="calendar"></div>
 
-        <h3>Choisissez un jour :</h3>
-        <select id="daySelection">
-            <option value="">Sélectionner un jour</option>
-        </select>
+<button class="button" id="confirmButton">Confirmer le Rendez-vous</button>
+<p id="confirmation"></p>
 
-        <h3>Choisissez un créneau disponible :</h3>
-        <div class="calendar" id="calendar"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("✅ Chargement du script");
 
-        <button class="button" id="confirmButton">Confirmer le Rendez-vous</button>
-        <p id="confirmation"></p>
-    </div>
+    // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
+    const params = new URLSearchParams(window.location.search);
+    const lead = {
+        nom: params.get("nom") || "Client",
+        prenom: params.get("prenom") || "",
+        email: params.get("email") || "",
+        telephone: params.get("telephone") || ""
+    };
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("✅ Chargement du script");
+    // 📌 Remplir la liste des mois (12 mois à partir du mois en cours)
+    const monthSelection = document.getElementById("monthSelection");
+    for (let i = 0; i < 12; i++) {
+        let date = new Date();
+        date.setMonth(new Date().getMonth() + i);
+        let option = document.createElement("option");
+        option.value = date.getMonth();
+        option.textContent = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        monthSelection.appendChild(option);
+    }
 
-            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
-            const params = new URLSearchParams(window.location.search);
-            const lead = {
-                nom: params.get("nom") || "Client",
-                prenom: params.get("prenom") || "",
-                email: params.get("email") || "",
-                telephone: params.get("telephone") || "",
-                agence: params.get("agence") || "",
-                negociateur: params.get("negociateur") || "",
-                property: params.get("property") || "",
-                surface: params.get("surface") || "",
-                rooms: params.get("rooms") || "",
-                prix: params.get("prix") || "",
-                reception: params.get("reception") || ""
+    // 📌 Mettre à jour les jours disponibles lorsque le mois est sélectionné
+    monthSelection.addEventListener("change", function () {
+        if (this.value !== "") {
+            generateDays(parseInt(this.value));
+        }
+    });
+
+    function generateDays(selectedMonth) {
+        const daySelection = document.getElementById("daySelection");
+        daySelection.innerHTML = "<option value=''>Sélectionner un jour</option>";
+        let currentYear = new Date().getFullYear();
+        let daysInMonth = new Date(currentYear, selectedMonth + 1, 0).getDate();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            let option = document.createElement("option");
+            option.value = i;
+            option.textContent = i;
+            daySelection.appendChild(option);
+        }
+    }
+
+    document.getElementById("daySelection").addEventListener("change", function () {
+        if (this.value !== "") {
+            generateTimeSlots(monthSelection.value, this.value);
+        }
+    });
+
+    function generateTimeSlots(month, day) {
+        const calendarEl = document.getElementById("calendar");
+        calendarEl.innerHTML = ""; 
+        let slots = [];
+
+        for (let i = 9; i <= 17; i++) {  
+            let date = new Date();
+            date.setMonth(month);
+            date.setDate(day);
+            date.setHours(i, 0, 0, 0);
+            slots.push({ label: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), date: date });
+        }
+
+        slots.forEach(slot => {
+            let div = document.createElement("div");
+            div.classList.add("slot");
+            div.innerText = slot.label;
+            div.onclick = function () {
+                document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
+                div.classList.add("selected");
+                document.getElementById("confirmButton").style.display = "block";
+                div.setAttribute("data-date", slot.date.toISOString());
             };
-
-            // 📌 Afficher les infos du lead sur la page
-            document.getElementById("leadInfo").innerHTML = `
-                <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
-                <p>Vous avez demandé une estimation pour un <b>${lead.property}</b> de <b>${lead.surface} m²</b> avec <b>${lead.rooms} pièces</b>.</p>
-                <p>Prix estimé : <b>${lead.prix} €</b> (donnée reçue le ${lead.reception}).</p>
-                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
-            `;
-
-            // 📌 Remplir la liste des jours disponibles
-            const daySelection = document.getElementById("daySelection");
-            for (let i = 1; i <= 5; i++) {
-                let futureDate = new Date();
-                futureDate.setDate(new Date().getDate() + i);
-                let option = document.createElement("option");
-                option.value = futureDate.toISOString().split('T')[0];
-                option.textContent = futureDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-                daySelection.appendChild(option);
-            }
-
-            daySelection.addEventListener("change", function () {
-                if (this.value) { generateTimeSlots(this.value); }
-            });
-
-            function generateTimeSlots(selectedDay) {
-                const calendarEl = document.getElementById("calendar");
-                calendarEl.innerHTML = ""; 
-                let slots = [];
-
-                for (let i = 9; i <= 17; i++) {  
-                    let date = new Date(selectedDay);
-                    date.setHours(i, 0, 0, 0);
-                    slots.push({ label: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), date: date });
-                }
-
-                slots.forEach(slot => {
-                    let div = document.createElement("div");
-                    div.classList.add("slot");
-                    div.innerText = slot.label;
-                    div.onclick = function () {
-                        document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
-                        div.classList.add("selected");
-                        document.getElementById("confirmButton").style.display = "block";
-                        div.setAttribute("data-date", slot.date.toISOString());
-                    };
-                    calendarEl.appendChild(div);
-                });
-            }
-
-            document.getElementById("confirmButton").addEventListener("click", function () {
-                const selectedSlot = document.querySelector(".slot.selected");
-                if (!selectedSlot) {
-                    alert("Veuillez choisir un créneau.");
-                    return;
-                }
-
-                let date = selectedSlot.getAttribute("data-date");
-
-                // 🔹 Envoi des données à Google Sheets via Google Apps Script (GET)
-                let params = new URLSearchParams({
-                    nom: lead.nom,
-                    prenom: lead.prenom,
-                    email: lead.email,
-                    telephone: lead.telephone,
-                    rdvDate: date
-                }).toString();
-
-                let url = `https://script.google.com/macros/s/AKfycbyu0tqXmJmP5byDYEDLsUrvcN90f8cMoM25_NOAn60zfj9WZfF42Y4Xl6w07ZJ4u0Zh5w/exec/exec?${params}`;
-
-                console.log("📤 Envoi des données :", url);
-
-                fetch(url, { method: "GET" })
-                .then(response => response.text())
-                .then(data => {
-                    console.log("✅ Réponse API :", data);
-                    document.getElementById("confirmation").innerHTML = `✅ Merci ${lead.prenom} ${lead.nom}, votre rendez-vous est confirmé.`;
-                    document.getElementById("confirmation").style.display = "block";
-                })
-                .catch(error => console.error("❌ Erreur API:", error));
-            });
+            calendarEl.appendChild(div);
         });
-    </script>
+    }
 
-</body>
-</html>
+    document.getElementById("confirmButton").addEventListener("click", function () {
+        const selectedSlot = document.querySelector(".slot.selected");
+        if (!selectedSlot) {
+            alert("Veuillez choisir un créneau.");
+            return;
+        }
+
+        let date = selectedSlot.getAttribute("data-date");
+
+        // 🔹 Envoi des données à Google Sheets via Google Apps Script (GET)
+        let params = new URLSearchParams({
+            nom: lead.nom,
+            prenom: lead.prenom,
+            email: lead.email,
+            telephone: lead.telephone,
+            rdvDate: date
+        }).toString();
+
+        let url = `https://script.google.com/macros/s/AKfycbyu0tqXmJmP5byDYEDLsUrvcN90f8cMoM25_NOAn60zfj9WZfF42Y4Xl6w07ZJ4u0Zh5w/exec?${params}`;
+
+        console.log("📤 Envoi des données :", url);
+
+        fetch(url, { method: "GET" })
+        .then(response => response.json())
+        .then(data => {
+            console.log("✅ Réponse API :", data);
+            if (data.success) {
+                document.getElementById("confirmation").innerHTML = `✅ Merci ${lead.prenom} ${lead.nom}, votre rendez-vous est confirmé.`;
+            } else {
+                document.getElementById("confirmation").innerHTML = "❌ Erreur système, merci de prendre contact avec votre conseiller.";
+            }
+            document.getElementById("confirmation").style.display = "block";
+        })
+        .catch(error => {
+            console.error("❌ Erreur API:", error);
+            document.getElementById("confirmation").innerHTML = "❌ Erreur système, merci de prendre contact avec votre conseiller.";
+            document.getElementById("confirmation").style.display = "block";
+        });
+    });
+});
+</script>

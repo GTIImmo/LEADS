@@ -1,0 +1,136 @@
+📌 Guide Complet : Héberger ton Mini-Site HTML sur GitHub Pages
+Tu veux héberger ton site web avec ton code HTML sur GitHub Pages. Je vais t’expliquer clairement et étape par étape ! 🚀
+
+📌 1️⃣ Étape 1 : Créer un Dépôt GitHub (LEADS)
+1️⃣ Va sur GitHub et connecte-toi
+2️⃣ Clique sur "New repository"
+3️⃣ Nom du repo : LEADS (ou un autre nom si tu préfères)
+4️⃣ Coche "Public" (sinon GitHub Pages ne pourra pas afficher ton site)
+5️⃣ Clique sur "Create Repository"
+
+✅ Ton dépôt GitHub est prêt !
+
+📌 2️⃣ Étape 2 : Préparer ton Code HTML sur ton Ordinateur
+💡 Ton code HTML doit être dans un dossier propre.
+
+1️⃣ Sur ton PC, crée un dossier pour ton site :
+📁 C:\Users\frede\Desktop\LEADS
+
+2️⃣ Mets ton fichier HTML principal dans ce dossier :
+
+📄 index.html (obligatoire, c'est la page d'accueil)
+📄 style.css (si tu as du CSS à part)
+📄 script.js (si tu as un fichier JS à part)
+📁 /images (si tu as des images)
+💡 Assure-toi que ton fichier principal s'appelle index.html !
+
+📌 3️⃣ Étape 3 : Ajouter ton Projet sur GitHub
+1️⃣ Ouvre ton terminal (ou Git Bash si tu es sous Windows)
+2️⃣ Va dans ton dossier de projet
+
+sh
+Copier
+Modifier
+cd C:\Users\frede\Desktop\LEADS
+3️⃣ Initialise Git dans le dossier
+
+sh
+Copier
+Modifier
+git init
+✅ Git va dire : "Initialized empty Git repository..."
+
+4️⃣ Ajoute tous tes fichiers à Git
+
+sh
+Copier
+Modifier
+git add .
+✅ Cela signifie : "Ajoute tous mes fichiers dans Git."
+
+5️⃣ Fais ton premier commit
+
+sh
+Copier
+Modifier
+git commit -m "Ajout du mini-site de prise de RDV"
+✅ Cela signifie : "Je sauvegarde mes modifications avec un message."
+
+📌 4️⃣ Étape 4 : Lier GitHub et Ton Projet
+1️⃣ Ajoute l’URL de ton repo GitHub comme remote
+
+sh
+Copier
+Modifier
+git remote add origin https://github.com/GTIImmo/LEADS.git
+2️⃣ Vérifie que tout est bien configuré
+
+sh
+Copier
+Modifier
+git remote -v
+✅ Si tout est bon, Git affiche :
+
+perl
+Copier
+Modifier
+origin  https://github.com/GTIImmo/LEADS.git (fetch)
+origin  https://github.com/GTIImmo/LEADS.git (push)
+📌 5️⃣ Étape 5 : Envoyer ton Site sur GitHub
+💡 Maintenant, on envoie le code HTML sur GitHub !
+
+1️⃣ Renomme ta branche principale en main
+
+sh
+Copier
+Modifier
+git branch -M main
+2️⃣ Envoie tes fichiers sur GitHub
+
+sh
+Copier
+Modifier
+git push -u origin main
+✅ Tes fichiers sont maintenant sur GitHub !
+
+📌 6️⃣ Étape 6 : Activer GitHub Pages
+💡 On va maintenant afficher ton site sur Internet !
+
+1️⃣ Va sur ton repo GitHub : https://github.com/GTIImmo/LEADS
+2️⃣ Clique sur "Settings" (⚙️ en haut à droite)
+3️⃣ Dans le menu de gauche, clique sur "Pages"
+4️⃣ Sous "Source", sélectionne la branche main et / (root)
+5️⃣ Clique sur "Save"
+
+📢 Après quelques minutes, GitHub va générer ton site !
+
+📌 7️⃣ Étape 7 : Accéder à ton Site en Ligne
+Une fois que GitHub Pages est activé, GitHub te donnera une URL comme ceci :
+
+cpp
+Copier
+Modifier
+https://GTIImmo.github.io/LEADS/
+✅ Ouvre cette URL et ton site est en ligne ! 🚀
+
+📌 8️⃣ Étape 8 : Modifier Ton Site (Mettre à Jour)
+💡 Si tu veux modifier ton site plus tard : 1️⃣ Modifie ton fichier HTML en local
+2️⃣ Ajoute les modifications
+
+sh
+Copier
+Modifier
+git add .
+3️⃣ Fais un commit
+
+sh
+Copier
+Modifier
+git commit -m "Mise à jour du mini-site"
+4️⃣ Envoie sur GitHub
+
+sh
+Copier
+Modifier
+git push origin main
+✅ Ton site sera automatiquement mis à jour sur GitHub Pages.
