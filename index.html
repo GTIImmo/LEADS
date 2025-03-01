@@ -94,16 +94,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log("✅ Chargement du script");
 
-            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
-            const params = new URLSearchParams(window.location.search);
-            const lead = {
-                nom: params.get("nom") || "Client",
-                prenom: params.get("prenom") || "",
-                email: params.get("email") || "",
-                telephone: params.get("telephone") || ""
-            };
-
-            // 📌 Remplir la liste des mois (12 mois à partir du mois en cours)
             const monthSelection = document.getElementById("monthSelection");
             for (let i = 0; i < 12; i++) {
                 let date = new Date();
@@ -114,7 +104,6 @@
                 monthSelection.appendChild(option);
             }
 
-            // 📌 Mettre à jour les jours disponibles lorsque le mois est sélectionné
             monthSelection.addEventListener("change", function () {
                 if (this.value !== "") {
                     generateDays(parseInt(this.value));
@@ -124,8 +113,7 @@
             function generateDays(selectedMonth) {
                 const daySelection = document.getElementById("daySelection");
                 daySelection.innerHTML = "<option value=''>Sélectionner un jour</option>";
-                let currentYear = new Date().getFullYear();
-                let daysInMonth = new Date(currentYear, selectedMonth + 1, 0).getDate();
+                let daysInMonth = new Date(new Date().getFullYear(), selectedMonth + 1, 0).getDate();
 
                 for (let i = 1; i <= daysInMonth; i++) {
                     let option = document.createElement("option");
@@ -144,28 +132,22 @@
             function generateTimeSlots(month, day) {
                 const calendarEl = document.getElementById("calendar");
                 calendarEl.innerHTML = ""; 
-                let slots = [];
-
                 for (let i = 9; i <= 17; i++) {  
                     let date = new Date();
                     date.setMonth(month);
                     date.setDate(day);
                     date.setHours(i, 0, 0, 0);
-                    slots.push({ label: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), date: date });
-                }
-
-                slots.forEach(slot => {
                     let div = document.createElement("div");
                     div.classList.add("slot");
-                    div.innerText = slot.label;
+                    div.innerText = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     div.onclick = function () {
                         document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
                         div.classList.add("selected");
                         document.getElementById("confirmButton").style.display = "block";
-                        div.setAttribute("data-date", slot.date.toISOString());
+                        div.setAttribute("data-date", date.toISOString());
                     };
                     calendarEl.appendChild(div);
-                });
+                }
             }
 
             document.getElementById("confirmButton").addEventListener("click", function () {
@@ -176,30 +158,24 @@
                 }
 
                 let date = selectedSlot.getAttribute("data-date");
-
-                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${date}`;
+                let url = `https://script.google.com/macros/s/TON_SCRIPT_ID/exec?rdvDate=${date}`;
 
                 fetch(url, { 
                     method: "GET",
-                    mode: "cors", // ✅ Corrige le problème de CORS
+                    mode: "cors", 
                     headers: { "Content-Type": "application/json" }
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système, merci de prendre contact avec votre conseiller.";
+                    document.getElementById("confirmation").innerText = data.success ? "✅ Rendez-vous confirmé." : "❌ Erreur système, contactez votre conseiller.";
                     document.getElementById("confirmation").style.display = "block";
                 })
                 .catch(error => {
-                    console.error("❌ Erreur API:", error);
-                    document.getElementById("confirmation").innerText = "❌ Erreur système, merci de prendre contact avec votre conseiller.";
+                    document.getElementById("confirmation").innerText = "❌ Erreur système, contactez votre conseiller.";
                     document.getElementById("confirmation").style.display = "block";
                 });
             });
         });
-    </script>
-</body>
-</html>
-
     </script>
 </body>
 </html>
