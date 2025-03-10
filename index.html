@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prendre Rendez-vous | GTI Immobilier</title>
 
-    <!-- Styles -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +23,6 @@
         }
         h1 { color: #C8106E; }
 
-        /* 🔳 Bandeau anthracite derrière le logo */
         .logo-container {
             background: #333;
             padding: 20px;
@@ -37,7 +35,6 @@
             width: 180px;
         }
 
-        /* 📌 Informations lead */
         .info {
             text-align: left;
             margin-bottom: 20px;
@@ -47,7 +44,6 @@
             border-radius: 5px;
         }
 
-        /* 🎨 Boutons modernisés */
         .button {
             background-color: #C8106E;
             color: white;
@@ -58,16 +54,14 @@
             font-size: 16px;
             margin-top: 15px;
             display: none;
-            transition: 0.3s ease-in-out;
+            transition: 0.3s;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
         .button:hover {
             background-color: #A00A5C;
             transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
         }
 
-        /* 📆 Grille des créneaux horaires */
         .calendar {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -95,7 +89,6 @@
             pointer-events: none;
         }
 
-        /* ✅ Confirmation message */
         #confirmation {
             display: none;
             margin-top: 20px;
@@ -104,7 +97,6 @@
             color: green;
         }
 
-        /* 📅 Sélecteurs de mois et jour */
         select {
             width: 100%;
             padding: 8px;
@@ -119,7 +111,6 @@
 <body>
 
     <div class="container">
-        <!-- Bandeau avec logo -->
         <div class="logo-container">
             <img src="https://www.gti-immobilier.fr/application/files/5617/3617/2343/GTI-Logos-Grisblanc.png" alt="GTI Immobilier" class="logo">
         </div>
@@ -148,7 +139,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log("✅ Chargement du script");
 
-            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
             const params = new URLSearchParams(window.location.search);
             const lead = {
                 nom: params.get("nom") || "Client",
@@ -163,7 +153,6 @@
                 <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
             `;
 
-            // 📌 Sélecteur de mois
             const monthSelection = document.getElementById("monthSelection");
             for (let i = 0; i < 12; i++) {
                 let futureMonth = new Date();
@@ -192,21 +181,43 @@
                 }
             }
 
-            document.getElementById("confirmButton").addEventListener("click", function () {
-                const selectedSlot = document.querySelector(".slot.selected");
-                if (!selectedSlot) {
-                    alert("Veuillez choisir un créneau.");
-                    return;
+            document.getElementById("daySelection").addEventListener("change", function () {
+                generateTimeSlots(this.value);
+            });
+
+            function generateTimeSlots(selectedDay) {
+                const calendarEl = document.getElementById("calendar");
+                calendarEl.innerHTML = ""; 
+
+                let now = new Date();
+                let selectedDate = new Date(selectedDay);
+                let dayDifference = Math.floor((selectedDate - now) / (1000 * 60 * 60 * 24));
+
+                let occupationRate = dayDifference < 1 ? 1 : dayDifference < 2 ? 0.5 : 0.25;
+
+                let atLeastOneAvailable = false;
+                for (let i = 9; i <= 17; i++) {
+                    let slot = document.createElement("div");
+                    slot.classList.add("slot");
+                    slot.innerText = `${i}:00`;
+
+                    if (Math.random() < occupationRate) {
+                        slot.classList.add("occupied");
+                    } else {
+                        slot.onclick = function () { 
+                            document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
+                            slot.classList.add("selected");
+                            document.getElementById("confirmButton").style.display = "block";
+                        };
+                        atLeastOneAvailable = true;
+                    }
+                    calendarEl.appendChild(slot);
                 }
 
-                let rdvDate = `${document.getElementById("daySelection").value} ${selectedSlot.innerText}`;
-                let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
-
-                fetch(url)
-                    .then(response => response.text())
-                    .then(() => document.getElementById("confirmation").textContent = `✅ Rendez-vous confirmé pour le ${rdvDate} !`)
-                    .catch(error => console.error("❌ Erreur API:", error));
-            });
+                if (!atLeastOneAvailable) {
+                    calendarEl.innerHTML = "<p>Aucun créneau disponible ce jour-là.</p>";
+                }
+            }
         });
     </script>
 
