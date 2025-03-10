@@ -19,33 +19,55 @@
             background: white;
             margin: auto;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
         }
         h1 { color: #C8106E; }
+
+        /* 🔳 Bandeau anthracite derrière le logo */
         .logo-container {
-            background: #D9D9D9;
-            padding: 15px;
+            background: #333;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            border-radius: 10px;
+            align-items: center;
+            border-radius: 10px 10px 0 0;
         }
         .logo {
-            width: 150px;
+            width: 180px;
         }
-        .info { text-align: left; margin-bottom: 20px; font-size: 14px; }
+
+        /* 📌 Informations lead */
+        .info {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 14px;
+            background: #F2F2F2;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* 🎨 Boutons modernisés */
         .button {
             background-color: #C8106E;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 18px;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 50px;
             font-size: 16px;
-            margin-top: 10px;
+            margin-top: 15px;
             display: none;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
-        .button:hover { background-color: #A00A5C; }
+        .button:hover {
+            background-color: #A00A5C;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 📆 Grille des créneaux horaires */
         .calendar {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -53,26 +75,51 @@
             margin-top: 20px;
         }
         .slot {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px;
+            border: 2px solid #C8106E;
+            border-radius: 10px;
             cursor: pointer;
             text-align: center;
-            background: #F2F2F2;
+            background: #FFF;
+            font-weight: bold;
+            transition: 0.3s;
         }
-        .slot:hover, .selected { background: #C8106E !important; color: white !important; }
+        .slot:hover, .selected {
+            background: #C8106E !important;
+            color: white !important;
+            transform: scale(1.05);
+        }
         .occupied {
             background: #D3D3D3 !important;
             color: #777 !important;
             pointer-events: none;
         }
-        #confirmation { display: none; margin-top: 20px; color: green; font-weight: bold; }
-        #daySelection, #monthSelection { margin: 10px 0; }
+
+        /* ✅ Confirmation message */
+        #confirmation {
+            display: none;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: green;
+        }
+
+        /* 📅 Sélecteurs de mois et jour */
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            font-size: 14px;
+            background: white;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <!-- Bandeau avec logo -->
         <div class="logo-container">
             <img src="https://www.gti-immobilier.fr/application/files/5617/3617/2343/GTI-Logos-Grisblanc.png" alt="GTI Immobilier" class="logo">
         </div>
@@ -145,34 +192,6 @@
                 }
             }
 
-            document.getElementById("daySelection").addEventListener("change", function () {
-                generateTimeSlots(this.value);
-            });
-
-            function generateTimeSlots(selectedDay) {
-                const calendarEl = document.getElementById("calendar");
-                calendarEl.innerHTML = ""; 
-
-                let now = new Date();
-                let selectedDate = new Date(selectedDay);
-                let dayDifference = Math.floor((selectedDate - now) / (1000 * 60 * 60 * 24));
-
-                let occupationRate = dayDifference < 1 ? 1 : dayDifference < 2 ? 0.5 : 0.25;
-
-                for (let i = 9; i <= 17; i++) {
-                    let slot = document.createElement("div");
-                    slot.classList.add("slot");
-                    slot.innerText = `${i}:00`;
-                    if (Math.random() < occupationRate) slot.classList.add("occupied");
-                    slot.onclick = function () { 
-                        document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
-                        slot.classList.add("selected");
-                        document.getElementById("confirmButton").style.display = "block";
-                    };
-                    calendarEl.appendChild(slot);
-                }
-            }
-
             document.getElementById("confirmButton").addEventListener("click", function () {
                 const selectedSlot = document.querySelector(".slot.selected");
                 if (!selectedSlot) {
@@ -180,27 +199,16 @@
                     return;
                 }
 
-                let hour = selectedSlot.innerText;
-                let day = document.getElementById("daySelection").value;
-                let rdvDate = `${day} ${hour}`;
-
+                let rdvDate = `${document.getElementById("daySelection").value} ${selectedSlot.innerText}`;
                 let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
 
-                fetch(url, { method: "GET" })
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
-                    document.getElementById("confirmation").style.display = "block";
-                })
-                .catch(error => console.error("❌ Erreur API:", error));
+                fetch(url)
+                    .then(response => response.text())
+                    .then(() => document.getElementById("confirmation").textContent = `✅ Rendez-vous confirmé pour le ${rdvDate} !`)
+                    .catch(error => console.error("❌ Erreur API:", error));
             });
-
         });
     </script>
 
 </body>
 </html>
-
-</body>
-</html>
-
