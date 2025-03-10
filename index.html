@@ -107,13 +107,13 @@
                 nom: params.get("nom") || "Client",
                 prenom: params.get("prenom") || "",
                 email: params.get("email") || "",
-                telephone: params.get("telephone") || "",
+                telephone: params.get("tel") || "",
                 negociateur: params.get("negociateur") || ""
             };
 
             document.getElementById("leadInfo").innerHTML = `
                 <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
-                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
+                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p>
             `;
 
             // 📌 Sélecteur de mois
