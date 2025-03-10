@@ -107,13 +107,13 @@
                 nom: params.get("nom") || "Client",
                 prenom: params.get("prenom") || "",
                 email: params.get("email") || "",
-                telephone: params.get("tel") || "",
+                tel: params.get("tel") || "", // ✅ Correction ici (anciennement "telephone")
                 negociateur: params.get("negociateur") || ""
             };
 
             document.getElementById("leadInfo").innerHTML = `
                 <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
-                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p>
+                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p> <!-- ✅ Correction ici -->
             `;
 
             // 📌 Sélecteur de mois
@@ -172,35 +172,8 @@
                     calendarEl.appendChild(slot);
                 }
             }
-
-            document.getElementById("confirmButton").addEventListener("click", function () {
-                const selectedSlot = document.querySelector(".slot.selected");
-                if (!selectedSlot) {
-                    alert("Veuillez choisir un créneau.");
-                    return;
-                }
-
-                let hour = selectedSlot.innerText;
-                let day = document.getElementById("daySelection").value;
-                let rdvDate = `${day} ${hour}`;
-
-                let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
-
-                fetch(url, { method: "GET" })
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
-                    document.getElementById("confirmation").style.display = "block";
-                })
-                .catch(error => console.error("❌ Erreur API:", error));
-            });
-
         });
     </script>
 
 </body>
 </html>
-
-</body>
-</html>
-
