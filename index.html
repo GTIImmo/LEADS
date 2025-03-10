@@ -37,14 +37,13 @@
         .button {
             background-color: #C8106E;
             color: white;
-            padding: 12px 18px;
+            padding: 10px 15px;
             border: none;
             cursor: pointer;
             border-radius: 5px;
             font-size: 16px;
             margin-top: 10px;
             display: none;
-            transition: all 0.3s ease-in-out;
         }
         .button:hover { background-color: #A00A5C; }
         .calendar {
@@ -54,31 +53,20 @@
             margin-top: 20px;
         }
         .slot {
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
             text-align: center;
             background: #F2F2F2;
-            font-weight: bold;
-            transition: all 0.3s ease-in-out;
         }
-        .slot:hover, .selected {
-            background: #C8106E !important;
-            color: white !important;
-        }
+        .slot:hover, .selected { background: #C8106E !important; color: white !important; }
         .occupied {
             background: #D3D3D3 !important;
             color: #777 !important;
             pointer-events: none;
         }
-        #confirmation {
-            display: none;
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            color: green;
-        }
+        #confirmation { display: none; margin-top: 20px; color: green; font-weight: bold; }
         #daySelection, #monthSelection { margin: 10px 0; }
     </style>
 </head>
@@ -89,23 +77,23 @@
             <img src="https://www.gti-immobilier.fr/application/files/5617/3617/2343/GTI-Logos-Grisblanc.png" alt="GTI Immobilier" class="logo">
         </div>
         
-        <h1>📅 Prendre un Rendez-vous</h1>
+        <h1>Prendre un Rendez-vous</h1>
         <div class="info" id="leadInfo">Chargement...</div>
 
-        <h3>📆 Choisissez un mois :</h3>
+        <h3>Choisissez un mois :</h3>
         <select id="monthSelection">
             <option value="">Sélectionner un mois</option>
         </select>
 
-        <h3>📅 Choisissez un jour :</h3>
+        <h3>Choisissez un jour :</h3>
         <select id="daySelection">
             <option value="">Sélectionner un jour</option>
         </select>
 
-        <h3>🕒 Choisissez un créneau disponible :</h3>
+        <h3>Choisissez un créneau disponible :</h3>
         <div class="calendar" id="calendar"></div>
 
-        <button class="button" id="confirmButton">✅ Confirmer le Rendez-vous</button>
+        <button class="button" id="confirmButton">Confirmer le Rendez-vous</button>
         <p id="confirmation"></p>
     </div>
 
@@ -113,14 +101,14 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log("✅ Chargement du script");
 
-            // 📌 Récupération des paramètres envoyés par Brevo
+            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
             const params = new URLSearchParams(window.location.search);
             const lead = {
                 nom: params.get("nom") || "Client",
                 prenom: params.get("prenom") || "",
                 email: params.get("email") || "",
                 telephone: params.get("telephone") || "",
-                negociateur: params.get("negociateur") || "Un conseiller GTI"
+                negociateur: params.get("negociateur") || ""
             };
 
             document.getElementById("leadInfo").innerHTML = `
@@ -128,7 +116,7 @@
                 <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
             `;
 
-            // 📌 Sélection du mois
+            // 📌 Sélecteur de mois
             const monthSelection = document.getElementById("monthSelection");
             for (let i = 0; i < 12; i++) {
                 let futureMonth = new Date();
@@ -198,7 +186,13 @@
 
                 let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
 
-                fetch(url, { method: "GET" });
+                fetch(url, { method: "GET" })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
+                    document.getElementById("confirmation").style.display = "block";
+                })
+                .catch(error => console.error("❌ Erreur API:", error));
             });
 
         });
@@ -206,3 +200,7 @@
 
 </body>
 </html>
+
+</body>
+</html>
+
