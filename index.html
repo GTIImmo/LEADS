@@ -107,13 +107,13 @@
                 nom: params.get("nom") || "Client",
                 prenom: params.get("prenom") || "",
                 email: params.get("email") || "",
-                tel: params.get("tel") || "", // ✅ Correction ici (anciennement "telephone")
+                telephone: params.get("tel") || "",
                 negociateur: params.get("negociateur") || ""
             };
 
             document.getElementById("leadInfo").innerHTML = `
                 <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
-                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p> <!-- ✅ Correction ici -->
+                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p>
             `;
 
             // 📌 Sélecteur de mois
@@ -170,7 +170,7 @@
                         document.getElementById("confirmButton").style.display = "block";
                     };
                     calendarEl.appendChild(slot);
-                 });
+                }
             }
 
             document.getElementById("confirmButton").addEventListener("click", function () {
@@ -180,32 +180,26 @@
                     return;
                 }
 
-                let date = selectedSlot.getAttribute("data-date");
+                let hour = selectedSlot.innerText;
+                let day = document.getElementById("daySelection").value;
+                let rdvDate = `${day} ${hour}`;
 
-                // 🔹 Envoi des données à Google Sheets via Google Apps Script (GET)
-                let params = new URLSearchParams({
-                    nom: lead.nom,
-                    prenom: lead.prenom,
-                    email: lead.email,
-                    telephone: lead.telephone,
-                    rdvDate: date
-                }).toString();
-
-                let url = `https://script.google.com/macros/s/AKfycbyu0tqXmJmP5byDYEDLsUrvcN90f8cMoM25_NOAn60zfj9WZfF42Y4Xl6w07ZJ4u0Zh5w/exec/exec?${params}`;
-
-                console.log("📤 Envoi des données :", url);
+                let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
 
                 fetch(url, { method: "GET" })
                 .then(response => response.text())
                 .then(data => {
-                    console.log("✅ Réponse API :", data);
-                    document.getElementById("confirmation").innerHTML = `✅ Merci ${lead.prenom} ${lead.nom}, votre rendez-vous est confirmé.`;
+                    document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
                     document.getElementById("confirmation").style.display = "block";
                 })
                 .catch(error => console.error("❌ Erreur API:", error));
             });
+
         });
     </script>
+
+</body>
+</html>
 
 </body>
 </html>
