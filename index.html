@@ -170,8 +170,40 @@
                         document.getElementById("confirmButton").style.display = "block";
                     };
                     calendarEl.appendChild(slot);
-                }
+                 });
             }
+
+            document.getElementById("confirmButton").addEventListener("click", function () {
+                const selectedSlot = document.querySelector(".slot.selected");
+                if (!selectedSlot) {
+                    alert("Veuillez choisir un créneau.");
+                    return;
+                }
+
+                let date = selectedSlot.getAttribute("data-date");
+
+                // 🔹 Envoi des données à Google Sheets via Google Apps Script (GET)
+                let params = new URLSearchParams({
+                    nom: lead.nom,
+                    prenom: lead.prenom,
+                    email: lead.email,
+                    telephone: lead.telephone,
+                    rdvDate: date
+                }).toString();
+
+                let url = `https://script.google.com/macros/s/AKfycbyu0tqXmJmP5byDYEDLsUrvcN90f8cMoM25_NOAn60zfj9WZfF42Y4Xl6w07ZJ4u0Zh5w/exec/exec?${params}`;
+
+                console.log("📤 Envoi des données :", url);
+
+                fetch(url, { method: "GET" })
+                .then(response => response.text())
+                .then(data => {
+                    console.log("✅ Réponse API :", data);
+                    document.getElementById("confirmation").innerHTML = `✅ Merci ${lead.prenom} ${lead.nom}, votre rendez-vous est confirmé.`;
+                    document.getElementById("confirmation").style.display = "block";
+                })
+                .catch(error => console.error("❌ Erreur API:", error));
+            });
         });
     </script>
 
