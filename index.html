@@ -1,45 +1,98 @@
-<!-- index.html -->
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prendre Rendez-vous | GTI Immobilier</title>
-    <link rel="stylesheet" href="style.css">
+
+    <!-- Styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F8F8F8;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            margin: auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 { color: #C8106E; }
+        .logo-container {
+            background: #303030;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        .logo {
+            width: 150px;
+        }
+        .info { text-align: left; margin-bottom: 20px; font-size: 14px; }
+        .button {
+            background-color: #C8106E;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+            display: none;
+        }
+        .button:hover { background-color: #A00A5C; }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .slot {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            background: #F2F2F2;
+        }
+        .slot:hover, .selected { background: #C8106E !important; color: white !important; }
+        .occupied {
+            background: #D3D3D3 !important;
+            color: #777 !important;
+            pointer-events: none;
+        }
+        #confirmation { display: none; margin-top: 20px; color: green; font-weight: bold; }
+        #daySelection, #monthSelection { margin: 10px 0; }
+    </style>
 </head>
 <body>
+
     <div class="container">
         <div class="logo-container">
             <img src="https://www.gti-immobilier.fr/application/files/5617/3617/2343/GTI-Logos-Grisblanc.png" alt="GTI Immobilier" class="logo">
         </div>
-
+        
         <h1>Prendre un Rendez-vous</h1>
-        <p class="subtitle">Choisissez la date qui vous convient pour rencontrer votre conseiller.</p>
         <div class="info" id="leadInfo">Chargement...</div>
 
-        <div class="select-group">
-            <label for="monthSelection">Choisissez un mois :</label>
-            <select id="monthSelection">
-                <option value="">Sélectionner un mois</option>
-            </select>
-        </div>
+        <h3>Choisissez un mois :</h3>
+        <select id="monthSelection">
+            <option value="">Sélectionner un mois</option>
+        </select>
 
-        <div class="select-group">
-            <label for="daySelection">Choisissez un jour :</label>
-            <select id="daySelection">
-                <option value="">Sélectionner un jour</option>
-            </select>
-        </div>
+        <h3>Choisissez un jour :</h3>
+        <select id="daySelection">
+            <option value="">Sélectionner un jour</option>
+        </select>
 
-        <div>
-            <h3>Choisissez un créneau disponible :</h3>
-            <div class="calendar" id="calendar"></div>
-        </div>
-
-        <div class="select-group">
-            <label for="commentaire">Commentaires (facultatif) :</label>
-            <textarea id="commentaire" placeholder="Votre besoin, demande ou message..." rows="3"></textarea>
-        </div>
+        <h3>Choisissez un créneau disponible :</h3>
+        <div class="calendar" id="calendar"></div>
 
         <button class="button" id="confirmButton">Confirmer le Rendez-vous</button>
         <p id="confirmation"></p>
@@ -47,6 +100,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            console.log("✅ Chargement du script");
+
+            // 📌 Récupérer les paramètres de l'URL envoyés par Brevo
             const params = new URLSearchParams(window.location.search);
             const lead = {
                 nom: params.get("nom") || "Client",
@@ -58,9 +114,10 @@
 
             document.getElementById("leadInfo").innerHTML = `
                 <p>Bonjour <b>${lead.prenom} ${lead.nom}</b>,</p>
-                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.telephone}</p>
+                <p>Votre conseiller : <b>${lead.negociateur}</b> - 📞 ${lead.tel}</p>
             `;
 
+            // 📌 Sélecteur de mois
             const monthSelection = document.getElementById("monthSelection");
             for (let i = 0; i < 12; i++) {
                 let futureMonth = new Date();
@@ -80,14 +137,11 @@
                 daySelection.innerHTML = `<option value="">Sélectionner un jour</option>`;
                 let [year, month] = selectedMonth.split('-').map(Number);
                 let daysInMonth = new Date(year, month, 0).getDate();
-                let today = new Date();
 
                 for (let i = 1; i <= daysInMonth; i++) {
-                    let date = new Date(year, month - 1, i);
-                    if (date < today.setHours(0, 0, 0, 0)) continue;
                     let option = document.createElement("option");
-                    option.value = date.toISOString().split('T')[0];
-                    option.textContent = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' });
+                    option.value = `${year}-${month.toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                    option.textContent = new Date(year, month - 1, i).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' });
                     daySelection.appendChild(option);
                 }
             }
@@ -98,20 +152,20 @@
 
             function generateTimeSlots(selectedDay) {
                 const calendarEl = document.getElementById("calendar");
-                calendarEl.innerHTML = "";
+                calendarEl.innerHTML = ""; 
 
                 let now = new Date();
                 let selectedDate = new Date(selectedDay);
+                let dayDifference = Math.floor((selectedDate - now) / (1000 * 60 * 60 * 24));
+
+                let occupationRate = dayDifference < 1 ? 1 : dayDifference < 2 ? 0.5 : 0.25;
 
                 for (let i = 9; i <= 17; i++) {
-                    let slotTime = new Date(selectedDate);
-                    slotTime.setHours(i, 0, 0, 0);
-                    if (slotTime < now) continue;
-
                     let slot = document.createElement("div");
                     slot.classList.add("slot");
                     slot.innerText = `${i}:00`;
-                    slot.onclick = function () {
+                    if (Math.random() < occupationRate) slot.classList.add("occupied");
+                    slot.onclick = function () { 
                         document.querySelectorAll(".slot").forEach(el => el.classList.remove("selected"));
                         slot.classList.add("selected");
                         document.getElementById("confirmButton").style.display = "block";
@@ -122,7 +176,6 @@
 
             document.getElementById("confirmButton").addEventListener("click", function () {
                 const selectedSlot = document.querySelector(".slot.selected");
-                const commentaire = document.getElementById("commentaire").value;
                 if (!selectedSlot) {
                     alert("Veuillez choisir un créneau.");
                     return;
@@ -132,17 +185,22 @@
                 let day = document.getElementById("daySelection").value;
                 let rdvDate = `${day} ${hour}`;
 
-                let url = `https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}&commentaire=${encodeURIComponent(commentaire)}`;
+                let url = `https://script.google.com/macros/s/AKfycbxSwOLfYgQ7UjPFVF1kfkABV67cx0rL_60J2g1hs-j9OXxZVmUGdpi6PIX3P377gI5uxw/exec?nom=${lead.nom}&prenom=${lead.prenom}&email=${lead.email}&telephone=${lead.telephone}&rdvDate=${encodeURIComponent(rdvDate)}`;
 
-                fetch(url)
-                    .then(response => response.text())
-                    .then(data => {
-                        document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
-                        document.getElementById("confirmation").style.display = "block";
-                    })
-                    .catch(error => console.error("❌ Erreur API:", error));
+                fetch(url, { method: "GET" })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("confirmation").innerHTML = `✅ Rendez-vous confirmé pour le ${rdvDate} !`;
+                    document.getElementById("confirmation").style.display = "block";
+                })
+                .catch(error => console.error("❌ Erreur API:", error));
             });
+
         });
     </script>
+
+</body>
+</html>
+
 </body>
 </html>
