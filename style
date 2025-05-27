@@ -1,4 +1,4 @@
-/* 🌟 Fond général */
+/* style.css */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -7,18 +7,6 @@ body {
     padding: 0;
 }
 
-/* 🌟 Header */
-.header {
-    background-color: #222;
-    text-align: center;
-    padding: 20px 0;
-}
-
-.logo {
-    max-width: 180px;
-}
-
-/* 📋 Conteneur principal */
 .container {
     max-width: 600px;
     background-color: white;
@@ -29,10 +17,33 @@ body {
     text-align: center;
 }
 
-/* 📅 Sélecteurs de mois et jours */
+.logo-container {
+    background: #303030;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.logo {
+    width: 150px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.info {
+    text-align: left;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
 .select-group {
     text-align: left;
-    margin-bottom: 15px;
+    margin: 15px 0;
 }
 
 label {
@@ -41,7 +52,7 @@ label {
     margin-bottom: 5px;
 }
 
-select {
+select, textarea {
     width: 100%;
     padding: 12px;
     font-size: 16px;
@@ -49,12 +60,11 @@ select {
     border-radius: 8px;
     background-color: #fff;
     color: #333;
-    cursor: pointer;
     outline: none;
+    resize: vertical;
     transition: all 0.3s ease-in-out;
 }
 
-/* 📅 Créneaux horaires */
 .calendar {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -85,7 +95,6 @@ select {
     pointer-events: none;
 }
 
-/* 🎯 Bouton de confirmation */
 .button {
     background-color: #C8106E;
     color: white;
@@ -103,7 +112,6 @@ select {
     background-color: #A00A5C;
 }
 
-/* ✅ Message de confirmation */
 #confirmation {
     display: none;
     margin-top: 20px;
@@ -112,9 +120,8 @@ select {
     color: green;
 }
 
-/* 📱 Responsive */
 @media screen and (max-width: 600px) {
     .calendar {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: 1fr;
     }
 }
